@@ -15,8 +15,7 @@ from models import db, connect_db, Message, User
 # before we import our app, since that will have already
 # connected to the database
 
-os.environ['DATABASE_URL'] = "postgresql:///warbler-test"
-
+os.environ['DATABASE_URL'] = "postgresql:///warbler_test"
 
 # Now we can import app
 
@@ -38,7 +37,8 @@ class MessageViewTestCase(TestCase):
 
     def setUp(self):
         """Create test client, add sample data."""
-
+        
+        db.session.rollback()
         User.query.delete()
         Message.query.delete()
 
@@ -51,12 +51,20 @@ class MessageViewTestCase(TestCase):
 
         db.session.commit()
 
+        self.testmsg = Message(user_id=self.testuser.id, text='he1')
+        self.testuser.messages.append(self.testmsg)
+
+        db.session.commit()
+
     def test_add_message(self):
         """Can use add a message?"""
 
         # Since we need to change the session to mimic logging in,
         # we need to use the changing-session trick:
 
+        Message.query.delete()
+        db.session.commit()
+        
         with self.client as c:
             with c.session_transaction() as sess:
                 sess[CURR_USER_KEY] = self.testuser.id
@@ -71,3 +79,20 @@ class MessageViewTestCase(TestCase):
 
             msg = Message.query.one()
             self.assertEqual(msg.text, "Hello")
+
+            with c.session_transaction() as sess:
+                del sess[CURR_USER_KEY] # Logout
+
+            resp2 = c.post("/messages/new", data={"text": "Hello"})
+
+            # Attempt to create a warble, should redirect
+            self.assertEqual(resp2.status_code, 302)
+
+
+    def test_show_message(self):
+        with self.client as c:
+            resp = c.get(f'/messages/{self.testmsg.id}')
+            html = resp.get_data(as_text=True)
+     
+            self.assertIn(self.testuser.username, html)
+            self.assertIn(self.testmsg.text, html)
