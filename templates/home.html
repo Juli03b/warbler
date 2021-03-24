@@ -52,7 +52,7 @@
               <p>{{ msg.text }}</p>
             </div>
             {% if msg.user_id != user_id %}
-            <form method="POST" action="/users/add_like/{{ msg.id }}" id="messages-form">
+            <form method="POST" action="/users/add_like/{{ msg.id }}" data-msg-id={{ msg.id }} id="messages-form">
               <button class="
                 btn 
                 btn-sm 
