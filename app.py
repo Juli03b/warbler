@@ -264,21 +264,24 @@ def add_like(msg_id):
 
     user = g.user
     msg = Message.query.get(msg_id)
+    
+    if not msg:
+        return jsonify(status=404)
 
     if msg in user.likes:
         Likes.query.filter_by(message_id=msg_id, user_id=user.id).delete()
         db.session.commit()
 
-        return redirect('/')
+        return jsonify(status='unliked')
     else: 
         like = Likes(user_id=user.id, message_id=msg_id)
 
         db.session.add(like)
         db.session.commit()
         
-        return redirect('/')
+        return jsonify(status='liked')
         
-    return redirect('/')
+    return jsonify(status=False)
 
 @app.route('/users/<user_id>/likes')
 def show_likes(user_id):
