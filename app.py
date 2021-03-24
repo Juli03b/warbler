@@ -1,6 +1,6 @@
 import os
 
-from flask import Flask, render_template, request, flash, redirect, session, g, url_for
+from flask import Flask, render_template, request, flash, redirect, session, g, url_for, jsonify
 from flask_debugtoolbar import DebugToolbarExtension
 from sqlalchemy.exc import IntegrityError
 from forms import UserAddForm, LoginForm, MessageForm, UserUpdateForm
@@ -361,7 +361,6 @@ def homepage():
     else:
         return render_template('home-anon.html')
 
-
 ##############################################################################
 # Turn off all caching in Flask
 #   (useful for dev; in production, this kind of stuff is typically
@@ -381,5 +380,4 @@ def add_header(req):
 
 @app.errorhandler(404)
 def page_not_found(err):
-    flash('Page not found', 'warning')
-    return redirect('/')
+    return render_template('404.html'), 404
