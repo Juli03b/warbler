@@ -22,12 +22,12 @@ class UserViewTestCase(TestCase):
         self.client = app.test_client()
 
         self.test_user = User.signup('t3st', 'test@t3st.com', 't3stts3t', None)
+        self.test_user2 = User.signup('t3st2', 'test@t3st.com2', 't3stts3t', None)
         self.user_pass = 't3stts3t'
         
-        self.test_user2 = User.signup('t3st2', 'test@t3st.com2', 't3stts3t', None)
-
         db.session.commit()
 
+        self.test_user_id = self.test_user.id
         self.user2_id = self.test_user2.id
 
     def test_list_users(self):
@@ -212,7 +212,7 @@ class UserViewTestCase(TestCase):
     def test_add_like(self):
         """Test that a user adds a like, and that a user can dislike."""
         # Instance <Message at 0x18dd5429c08> is not bound to a Session 
-        msg = Message(user_id=self.test_user.id, text='hjelo')
+        msg = Message(id=2344 , user_id=self.test_user_id, text='hjelo')
 
         db.session.add(msg)
         db.session.commit()
@@ -221,7 +221,7 @@ class UserViewTestCase(TestCase):
             with c.session_transaction() as sess:
                 sess[CURR_USER_KEY] = self.user2_id
 
-            res = c.post(f'/users/add_like/{msg.id}')
+            res = c.post('/users/add_like/2344')
             # html = res.get_data(as_text=True)
 
             self.assertEqual(res.status_code, 200)
