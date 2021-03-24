@@ -88,7 +88,6 @@ class MessageViewTestCase(TestCase):
             # Attempt to create a warble, should redirect
             self.assertEqual(resp2.status_code, 302)
 
-
     def test_show_message(self):
         with self.client as c:
             resp = c.get(f'/messages/{self.testmsg.id}')

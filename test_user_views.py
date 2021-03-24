@@ -45,6 +45,11 @@ class UserViewTestCase(TestCase):
 
             # Test search for user
             self.assertIn('t3st', html)
+
+    def tearDown(self):
+        resp = super().tearDown()
+        db.session.rollback()
+        return resp
         
     def test_users_show(self):
         """Test that user page is shown 
@@ -206,8 +211,8 @@ class UserViewTestCase(TestCase):
     
     def test_add_like(self):
         """Test that a user adds a like, and that a user can dislike."""
-        # User object not bound to session error, fix
-        msg = Message(id=343, user_id=self.test_user.id, text='hjelo')
+        # Instance <Message at 0x18dd5429c08> is not bound to a Session 
+        msg = Message(user_id=self.test_user.id, text='hjelo')
 
         db.session.add(msg)
         db.session.commit()
